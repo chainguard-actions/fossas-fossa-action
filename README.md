@@ -1,5 +1,7 @@
 # fossas/fossa-action
 
+Find license compliance and security issues in your applications with FOSSA and GitHub Actions.
+
 Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/fossas/fossa-action](https://github.com/fossas/fossa-action).
 
 ## Versions

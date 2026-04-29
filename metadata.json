@@ -1,5 +1,6 @@
 {
   "owner": "fossas",
   "name": "fossa-action",
-  "visibility": ""
+  "visibility": "internal",
+  "description": "Find license compliance and security issues in your applications with FOSSA and GitHub Actions."
 }
