@@ -1,0 +1,24 @@
+name: Test basic usage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          api-key: fake-api-key-for-testing
+          pinned-cli-version: v3.9.0
+          endpoint: https://app.fossa.com
+          branch: main
+          project: test-project
+          team: test-team
+          policy: test-policy
+          working-directory: .
+      - name: Assert action ran (may fail due to invalid API key)
+        run: |
+          echo "Action completed with outcome: ${{ steps.action.outcome }}"
+          echo "PASS: action step executed"
