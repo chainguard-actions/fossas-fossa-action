@@ -1,4 +1,4 @@
-name: Test basic FOSSA analysis
+name: Test FOSSA container scanning and report generation
 on:
   workflow_dispatch:
 jobs:
@@ -11,13 +11,10 @@ jobs:
         continue-on-error: true
         with:
           api-key: fake-api-key-for-testing
-          pinned-cli-version: v3.9.0
-          branch: main
-          project: test-project
-          team: test-team
-          policy: test-policy
-          endpoint: https://app.fossa.com
-          working-directory: .
+          container: ubuntu:latest
+          run-tests: "true"
+          test-diff-revision: abc123def456
+          generate-report: attribution
         env:
           GITHUB_REF: refs/heads/main
           GITHUB_EVENT_NAME: push
