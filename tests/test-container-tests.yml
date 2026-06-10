@@ -1,4 +1,4 @@
-name: Test basic usage
+name: Test container and test-diff-revision inputs
 on:
   workflow_dispatch:
 jobs:
@@ -10,11 +10,9 @@ jobs:
         uses: .
         with:
           api-key: fake-api-key
-          pinned-cli-version: v3.9.0
-          endpoint: https://app.fossa.com
-          project: test-project
-          team: test-team
-          policy: test-policy
+          container: ubuntu:latest
+          run-tests: "true"
+          test-diff-revision: abc1234
         continue-on-error: true
       - name: Assert action ran
         run: |

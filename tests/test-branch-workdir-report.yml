@@ -1,20 +1,21 @@
-name: Test basic usage
+name: Test branch, working-directory, and generate-report inputs
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: action
         uses: .
         with:
           api-key: fake-api-key
-          pinned-cli-version: v3.9.0
-          endpoint: https://app.fossa.com
-          project: test-project
-          team: test-team
-          policy: test-policy
+          branch: main
+          working-directory: .
+          generate-report: attribution
         continue-on-error: true
       - name: Assert action ran
         run: |
