@@ -1,18 +1,21 @@
-name: Test FOSSA container scanning
+name: Test container scanning
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: action
         uses: .
         with:
-          api-key: test-api-key
+          api-key: fake-api-key
           container: ubuntu:latest
         continue-on-error: true
       - name: Assert action ran
         run: |
-          echo "Action completed (may fail due to invalid API key in test environment)"
+          echo "Action completed (may fail due to invalid API key, which is expected)"
           echo "PASS"
