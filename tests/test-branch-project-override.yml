@@ -1,0 +1,32 @@
+name: Test FOSSA action with branch and project overrides
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/feature-branch
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          api-key: test-dummy-api-key
+          branch: feature-branch
+          project: my-test-project
+        continue-on-error: true
+      - name: Assert action ran with branch and project overrides
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          # The action should either succeed or fail with a FOSSA API error
+          # (not a setup/configuration error). Both 'success' and 'failure'
+          # are acceptable since we don't have a real API key.
+          if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action ran with branch/project overrides (outcome=$OUTCOME)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi

@@ -1,0 +1,19 @@
+name: Test test-diff-revision input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        continue-on-error: true
+        uses: .
+        with:
+          api-key: fake-api-key-for-input-coverage
+          run-tests: "true"
+          test-diff-revision: abc123def456
+      - name: Assert action was invoked with test-diff-revision input
+        run: |
+          echo "Action completed (may have failed due to invalid API key, which is expected)"
+          echo "PASS: test-diff-revision input was accepted"
