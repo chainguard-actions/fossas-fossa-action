@@ -7,12 +7,12 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: action
-        continue-on-error: true
         uses: .
+        continue-on-error: true
         with:
-          api-key: fake-api-key-for-input-coverage
+          api-key: test-api-key
           generate-report: attribution
-      - name: Assert action was invoked with generate-report input
+      - name: Assert generate-report input was accepted
         run: |
-          echo "Action completed (may have failed due to invalid API key, which is expected)"
-          echo "PASS: generate-report input was accepted"
+          echo "Action completed (may fail due to invalid API key, but generate-report input was passed)"
+          echo "PASS: generate-report input covered"

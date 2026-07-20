@@ -1,0 +1,158 @@
+name: 'FOSSA Action'
+
+on: push
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.x
+
+      - name: Install npm packages
+        run: corepack enable && yarn --immutable
+
+      - name: Run lint
+        run: yarn lint
+
+  fossa-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.x
+
+      - name: Install npm packages
+        run: corepack enable && yarn --immutable
+
+      - name: Build
+        run: yarn build
+
+      - name: Run FOSSA scan in debug mode and upload build data
+        uses: ./
+        with:
+          api-key: ${{secrets.fossaApiKey}}
+          debug: true
+
+      - name: Upload FOSSA debug bundle as a build artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: fossa.debug.json.gz
+          path: ./fossa.debug.json.gz
+
+      - name: Run FOSSA container scan and upload build data
+        uses: ./
+        with:
+          api-key: ${{secrets.fossaApiKey}}
+          container: alpine:latest
+
+      - name: Run FOSSA scan with branch
+        uses: ./
+        with:
+          api-key: ${{secrets.fossaApiKey}}
+          branch: develop
+          project: custom-test-project
+
+      - name: Run FOSSA test with a --project and --branch
+        uses: ./
+        with:
+          api-key: ${{secrets.fossaApiKey}}
+          branch: develop
+          project: custom-test-project
+
+      - name: Run FOSSA test
+        uses: ./
+        with:
+          api-key: ${{secrets.fossaApiKey}}
+          run-tests: true
+
+      # On the first push to a new branch, github.event.before is the zero SHA
+      # (0000000000000000000000000000000000000000) because there is no previous
+      # commit on that ref. In that case, fall back to diffing against the default branch.
+      - name: Determine diff revision
+        id: diff-rev
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            git fetch origin "$DEFAULT_BRANCH" --depth=1
+            raw_rev=$(git rev-parse "origin/$DEFAULT_BRANCH")
+            safe_rev=$(printf '%s' "$raw_rev" | tr -d '\n\r')
+            echo "rev=$safe_rev" >> "$GITHUB_OUTPUT"
+          else
+            safe_rev=$(printf '%s' "$BEFORE_SHA" | tr -d '\n\r')
+            echo "rev=$safe_rev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run FOSSA test with --diff
+        uses: ./
+        with:
+          api-key: ${{secrets.fossaApiKey}}
+          run-tests: true
+          test-diff-revision: ${{ steps.diff-rev.outputs.rev }}
+
+      - name: Run FOSSA test with container
+        uses: ./
+        with:
+          api-key: ${{secrets.fossaApiKey}}
+          container: alpine:latest
+          run-tests: true
+
+      - name: Generate FOSSA report
+        id: example-generate-report
+        uses: ./
+        with:
+          api-key: ${{secrets.fossaApiKey}}
+          generate-report: json
+
+      - name: Demonstrate report output
+        env:
+          REPORT: ${{ steps.example-generate-report.outputs.report }}
+        run: |
+          echo "$REPORT" | jq
+
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          path: different-working-directory
+
+      - name: Scan a different directory
+        uses: ./
+        with:
+          api-key: ${{secrets.fossaApiKey}}
+          working-directory: different-working-directory
+
+      # The following two blocks are one test. Don't separate them.
+      - name: Installs a Specific version
+        uses : ./
+        with:
+          api-key: ${{secrets.fossaApiKey}}
+          pinned-cli-version: 3.15.0
+
+      - name: Check Version
+        run:
+          ./fossa/fossa --version | grep '3.15.0'
+
+      # The following two blocks are one test. Don't separate them.
+      - name: Installs a Specific version (normalized)
+        uses : ./
+        with:
+          api-key: ${{secrets.fossaApiKey}}
+          pinned-cli-version: v3.15.0
+
+      - name: Check Version
+        run:
+          ./fossa/fossa --version | grep '3.15.0'

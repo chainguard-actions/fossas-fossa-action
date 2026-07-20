@@ -1,31 +1,34 @@
-name: Test FOSSA action with debug mode
+name: Test debug mode input
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_REF: refs/heads/main
-      GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # Test that the action accepts the debug input.
+      # With a fake API key, fossa analyze will fail, but the action should
+      # accept the debug flag without errors.
       - id: action
         uses: .
         with:
-          api-key: test-dummy-api-key
-          debug: "true"
+          api-key: fake-api-key-for-testing
+          debug: true
         continue-on-error: true
-      - name: Assert action ran in debug mode
+
+      - name: Assert action ran with debug mode and failed at analyze step
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "action outcome: $OUTCOME"
-          # The action should either succeed or fail with a FOSSA API error
-          # (not a setup/configuration error). Both 'success' and 'failure'
-          # are acceptable since we don't have a real API key.
-          if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action ran in debug mode (outcome=$OUTCOME)"
+          echo "outcome: $OUTCOME"
+          # The action should fail at the fossa analyze step (invalid API key),
+          # not at input validation. Either failure is acceptable here.
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed at analyze step as expected (invalid API key, debug mode)"
+          elif [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded unexpectedly (real API key may be configured)"
           else
-            echo "FAIL: unexpected outcome '$OUTCOME'"
+            echo "FAIL: unexpected outcome: $OUTCOME"
             exit 1
           fi

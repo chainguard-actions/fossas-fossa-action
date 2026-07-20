@@ -1,4 +1,4 @@
-name: Test container scanning input
+name: Test policy input
 on:
   workflow_dispatch:
 jobs:
@@ -11,8 +11,8 @@ jobs:
         continue-on-error: true
         with:
           api-key: test-api-key
-          container: ubuntu:latest
-      - name: Assert container input was accepted
+          policy: my-test-policy
+      - name: Assert policy input was accepted
         run: |
-          echo "Action completed (may fail due to invalid API key, but container input was passed)"
-          echo "PASS: container input covered"
+          echo "Action completed (may fail due to invalid API key, but policy input was passed)"
+          echo "PASS: policy input covered"

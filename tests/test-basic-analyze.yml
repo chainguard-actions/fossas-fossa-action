@@ -1,0 +1,28 @@
+name: Test basic analyze (invalid API key fails gracefully)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # The action requires a real FOSSA API key to succeed.
+      # With a fake key, fossa analyze will fail with a non-zero exit code.
+      # We verify the action runs (CLI is downloaded) and fails as expected.
+      - id: action
+        uses: .
+        with:
+          api-key: fake-api-key-for-testing
+        continue-on-error: true
+
+      - name: Assert action failed with invalid API key
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "FAIL: expected action to fail with invalid API key, but got outcome: $OUTCOME"
+            exit 1
+          fi
+          echo "PASS: action correctly failed with invalid API key"

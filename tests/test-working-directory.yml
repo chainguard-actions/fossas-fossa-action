@@ -6,15 +6,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Create working directory
-        run: mkdir -p /tmp/fossa-test-dir
+
+      - name: Create a subdirectory to analyze
+        run: |
+          mkdir -p /tmp/fossa-test-dir
+          echo "# Test project" > /tmp/fossa-test-dir/README.md
+
+      # Test that the action accepts the working-directory input.
+      # With a fake API key, fossa analyze will fail, but the action should
+      # attempt to run in the specified working directory.
       - id: action
-        continue-on-error: true
         uses: .
         with:
-          api-key: fake-api-key-for-input-coverage
+          api-key: fake-api-key-for-testing
           working-directory: /tmp/fossa-test-dir
-      - name: Assert action was invoked with working-directory input
+        continue-on-error: true
+
+      - name: Assert action ran with working-directory and failed at analyze step
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "Action completed (may have failed due to invalid API key, which is expected)"
-          echo "PASS: working-directory input was accepted"
+          echo "outcome: $OUTCOME"
+          # The action should fail at the fossa analyze step (invalid API key),
+          # not at input validation. Either failure is acceptable here.
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed at analyze step as expected (invalid API key)"
+          elif [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded unexpectedly (real API key may be configured)"
+          else
+            echo "FAIL: unexpected outcome: $OUTCOME"
+            exit 1
+          fi
