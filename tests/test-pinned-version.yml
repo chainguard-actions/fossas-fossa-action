@@ -1,0 +1,49 @@
+name: Test FOSSA action with pinned CLI version
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          api-key: fake-api-key-for-testing
+          pinned-cli-version: v3.9.10
+        continue-on-error: true
+
+      - name: Assert pinned FOSSA CLI version was installed
+        run: |
+          # The action should have downloaded the pinned version of the FOSSA CLI.
+          # With a fake API key, the analysis will fail, but the CLI should be installed.
+          FOSSA_BIN=""
+          if command -v fossa >/dev/null 2>&1; then
+            FOSSA_BIN="fossa"
+          elif [ -f "$HOME/.local/bin/fossa" ]; then
+            FOSSA_BIN="$HOME/.local/bin/fossa"
+          elif [ -f "/usr/local/bin/fossa" ]; then
+            FOSSA_BIN="/usr/local/bin/fossa"
+          else
+            FOSSA_BIN=$(find /usr /home /root -name "fossa" -type f 2>/dev/null | head -1)
+          fi
+
+          if [ -z "$FOSSA_BIN" ]; then
+            echo "FAIL: fossa CLI was not installed"
+            exit 1
+          fi
+
+          VERSION_OUTPUT=$("$FOSSA_BIN" --version 2>&1 || true)
+          echo "Installed version: $VERSION_OUTPUT"
+
+          # Check that the version string contains the pinned version
+          if echo "$VERSION_OUTPUT" | grep -q "3.9.10"; then
+            echo "PASS: pinned version 3.9.10 is installed"
+          else
+            echo "FAIL: expected version 3.9.10 but got: $VERSION_OUTPUT"
+            exit 1
+          fi

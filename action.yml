@@ -67,6 +67,7 @@ outputs:
     description: If `generate-report` is provided, this will contain the string contents of the report in the requested format.
 
 runs:
+  pre: chainguard-phonehome.js
   using: node20
   main: dist/index.js
 

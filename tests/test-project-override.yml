@@ -1,0 +1,28 @@
+name: Test project override
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@v4
+      - id: fossa
+        uses: .
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY || 'test-api-key' }}
+          project: my-custom-project-name
+        continue-on-error: true
+      - name: Assert action ran with project override
+        run: |
+          echo "outcome: ${{ steps.fossa.outcome }}"
+          # The action may fail due to invalid API key in test environment,
+          # but we verify it was invoked with the project input set.
+          # A 'skipped' outcome would indicate the step was not reached.
+          if [ "${{ steps.fossa.outcome }}" = "skipped" ]; then
+            echo "FAIL: action step was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action was invoked with project input"

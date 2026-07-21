@@ -1,0 +1,46 @@
+name: Test FOSSA action with branch override
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/pull/42/merge
+      GITHUB_EVENT_NAME: pull_request
+      GITHUB_HEAD_REF: feature-branch
+      GITHUB_BASE_REF: main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          api-key: fake-api-key-for-testing
+          branch: feature-branch
+          project: test-project
+        continue-on-error: true
+
+      - name: Assert FOSSA CLI was installed for PR scenario
+        run: |
+          # The action should have downloaded and installed the FOSSA CLI
+          # even if the analysis fails due to an invalid API key.
+          # This test verifies the branch and project override inputs are accepted.
+          if command -v fossa >/dev/null 2>&1; then
+            echo "PASS: fossa CLI is available in PR branch override test"
+            fossa --version
+          elif [ -f "$HOME/.local/bin/fossa" ]; then
+            echo "PASS: fossa CLI found at $HOME/.local/bin/fossa"
+            "$HOME/.local/bin/fossa" --version
+          elif [ -f "/usr/local/bin/fossa" ]; then
+            echo "PASS: fossa CLI found at /usr/local/bin/fossa"
+            /usr/local/bin/fossa --version
+          else
+            FOSSA_PATH=$(find /usr /home /root -name "fossa" -type f 2>/dev/null | head -1)
+            if [ -n "$FOSSA_PATH" ]; then
+              echo "PASS: fossa CLI found at $FOSSA_PATH"
+              "$FOSSA_PATH" --version
+            else
+              echo "FAIL: fossa CLI was not installed in branch override test"
+              exit 1
+            fi
+          fi

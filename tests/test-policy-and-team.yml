@@ -1,4 +1,4 @@
-name: Test container scan
+name: Test policy and team
 on:
   workflow_dispatch:
 jobs:
@@ -9,12 +9,13 @@ jobs:
       GITHUB_EVENT_NAME: push
     steps:
       - uses: actions/checkout@v4
-      - name: Run FOSSA action with container input
+      - name: Run FOSSA action with policy and team
         id: fossa
         uses: .
         with:
           api-key: fake-api-key-for-testing
-          container: ubuntu:latest
+          policy: my-policy
+          team: my-team
         continue-on-error: true
       - name: Assert action ran (step outcome is not skipped)
         env:
@@ -25,4 +26,4 @@ jobs:
             echo "FAIL: action was skipped unexpectedly"
             exit 1
           fi
-          echo "PASS: action ran with container input"
+          echo "PASS: action ran with policy and team"
