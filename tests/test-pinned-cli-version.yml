@@ -1,0 +1,33 @@
+name: Test pinned CLI version
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          api-key: fake-api-key-for-testing
+          pinned-cli-version: v3.9.0
+        continue-on-error: true
+
+      - name: Assert FOSSA CLI was installed at the pinned version
+        run: |
+          # The action should have installed the FOSSA CLI before attempting analysis.
+          # Even with a fake API key, the CLI binary should be present on PATH.
+          if command -v fossa >/dev/null 2>&1; then
+            INSTALLED_VERSION="$(fossa --version 2>&1 || true)"
+            echo "fossa version: $INSTALLED_VERSION"
+            if echo "$INSTALLED_VERSION" | grep -q "3.9.0"; then
+              echo "PASS: fossa CLI v3.9.0 is installed"
+            else
+              echo "FAIL: expected version 3.9.0 but got: $INSTALLED_VERSION"
+              exit 1
+            fi
+          else
+            echo "FAIL: fossa binary not found on PATH after action ran"
+            exit 1
+          fi

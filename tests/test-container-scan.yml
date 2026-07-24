@@ -1,4 +1,4 @@
-name: Test basic usage with fake API key
+name: Test container scanning with custom endpoint
 on:
   workflow_dispatch:
 jobs:
@@ -11,19 +11,20 @@ jobs:
         uses: .
         with:
           api-key: fake-api-key-for-testing
+          container: alpine:latest
+          endpoint: app.fossa.com
         continue-on-error: true
 
-      - name: Assert action ran (pass or fail gracefully)
+      - name: Assert action ran with container and endpoint inputs
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "action outcome: $OUTCOME"
-          # The action is expected to fail with a fake API key (FOSSA rejects it),
-          # but it should not crash with an unexpected error (e.g. missing binary).
-          # We accept both 'success' and 'failure' as valid outcomes — what we
-          # reject is a completely missing step outcome.
+          # With a fake API key and container/endpoint inputs, the action should
+          # still run (installing the CLI and attempting container analysis).
+          # We accept success or failure — both indicate the action ran.
           if [ "$OUTCOME" = "success" ] || [ "$OUTCOME" = "failure" ]; then
-            echo "PASS: action ran and produced a deterministic outcome ($OUTCOME)"
+            echo "PASS: action ran with container and endpoint inputs, outcome: $OUTCOME"
           else
             echo "FAIL: unexpected outcome '$OUTCOME'"
             exit 1
