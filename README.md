@@ -6,11 +6,11 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 ## Versions
 
-| Version | Tag | Upstream commit |
-|---------|-----|-----------------|
-| v1.8.0 | [`v1.8.0`](https://github.com/chainguard-actions/fossas-fossa-action/tree/v1.8.0) | [`c414b9a`](https://github.com/fossas/fossa-action/commit/c414b9ad82eaad041e47a7cf62a4f02411f427a0) |
-| v1.9.0 | [`v1.9.0`](https://github.com/chainguard-actions/fossas-fossa-action/tree/v1.9.0) | [`ff70fe9`](https://github.com/fossas/fossa-action/commit/ff70fe9fe17cbd2040648f1c45e8ec4e4884dcf3) |
-| v2.0.0 | [`v2.0.0`](https://github.com/chainguard-actions/fossas-fossa-action/tree/v2.0.0) | [`29693cc`](https://github.com/fossas/fossa-action/commit/29693cc50323968e039056be419b32989fc5880c) |
+| Version | Tag | Upstream commit | Hardening report |
+|---------|-----|-----------------|------------------|
+| v1.8.0 | [`v1.8.0`](https://github.com/chainguard-actions/fossas-fossa-action/tree/v1.8.0) | [`c414b9a`](https://github.com/fossas/fossa-action/commit/c414b9ad82eaad041e47a7cf62a4f02411f427a0) | [`HARDENING.md`](https://github.com/chainguard-actions/fossas-fossa-action/blob/v1.8.0/HARDENING.md) |
+| v1.9.0 | [`v1.9.0`](https://github.com/chainguard-actions/fossas-fossa-action/tree/v1.9.0) | [`ff70fe9`](https://github.com/fossas/fossa-action/commit/ff70fe9fe17cbd2040648f1c45e8ec4e4884dcf3) | [`HARDENING.md`](https://github.com/chainguard-actions/fossas-fossa-action/blob/v1.9.0/HARDENING.md) |
+| v2.0.0 | [`v2.0.0`](https://github.com/chainguard-actions/fossas-fossa-action/tree/v2.0.0) | [`29693cc`](https://github.com/fossas/fossa-action/commit/29693cc50323968e039056be419b32989fc5880c) | [`HARDENING.md`](https://github.com/chainguard-actions/fossas-fossa-action/blob/v2.0.0/HARDENING.md) |
 
 ## Privacy
 
