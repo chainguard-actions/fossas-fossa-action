@@ -4,8 +4,13 @@
   "version": "v1.9.0",
   "commit_sha": "ff70fe9fe17cbd2040648f1c45e8ec4e4884dcf3",
   "url": "https://github.com/fossas/fossa-action",
-  "policy_sha": "d636be7e43ef829af6e853da6b3c7566db9f72fe",
+  "policy_sha": "374911c4be584df24e6da57af2d990570ef0f859",
   "test_policy_sha": "843adf9e4b8f85d0c08b27b9d0b09dd094b54702",
   "test_agent_version": "2",
-  "harden_agent_version": "2"
+  "harden_agent_version": "2",
+  "dist_artifact": {
+    "gcs_uri": "gs://patch-actions-node-artifacts/dist-artifacts/fossas/fossa-action/v1.9.0/sha256-2d97c35e1e79215214a237745421002fb61525b3d1d5f84f9c6d13b3d2e7e22e.tar.gz",
+    "sha256": "2d97c35e1e79215214a237745421002fb61525b3d1d5f84f9c6d13b3d2e7e22e",
+    "size_bytes": 611764
+  }
 }
